@@ -23,7 +23,7 @@ public class Client implements Serializable{
     private Long id;
 
     private String name;
-    private String lastName;
+    private String lastname;
     private String email;
     
     @Column(name = "created_at")
@@ -42,11 +42,11 @@ public class Client implements Serializable{
     public void setName(String name) {
         this.name = name;
     }
-    public String getLastName() {
-        return lastName;
+    public String getLastname() {
+        return lastname;
     }
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
+    public void setLastname(String lastname) {
+        this.lastname = lastname;
     }
     public String getEmail() {
         return email;
