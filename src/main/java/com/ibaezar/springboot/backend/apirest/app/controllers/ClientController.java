@@ -61,9 +61,21 @@ public class ClientController {
     }
 
     @PostMapping("/crear")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Client create(@RequestBody Client client){
-        return clientService.save(client);
+    public ResponseEntity<?> create(@RequestBody Client client){
+        Client clientNew = null;
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            clientNew = clientService.save(client);
+        } catch (DataAccessException e) {
+            response.put("message", "Error al crear el usuario en la base de datos");
+            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+            return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        response.put("message", "Cliente creado con éxito");
+        response.put("client", clientNew);
+        return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
 
     @PutMapping("/editar/{id}")
