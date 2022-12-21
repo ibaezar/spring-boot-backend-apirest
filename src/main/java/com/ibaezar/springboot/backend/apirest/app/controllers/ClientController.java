@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 //import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ibaezar.springboot.backend.apirest.app.models.entity.Client;
@@ -81,32 +80,32 @@ public class ClientController {
     @PutMapping("/editar/{id}")
     public ResponseEntity<?> update(@RequestBody Client client, @PathVariable Long id){
 
-        Client actualClient = null;
+        Client actualClient = clientService.findById(id);
+        Client updatedClient = null;
         Map<String, Object> response = new HashMap<>();
 
-        try {
-            actualClient = clientService.findById(id);
-        } catch (DataAccessException e) {
-            response.put("message", "Error: cliente no encontrado");
-            response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
+        if(actualClient == null){
+            response.put("message", "Error: cliente no existe en la base de datos");
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
         }
 
-        if (actualClient != null) {
+        try {
+            if(client.getName().length() == 0 | client.getEmail().length() == 0){
+                response.put("message", "Error: el nombre o el email no pueden estár vacíos!");
+                return new ResponseEntity<Map<String, Object>>(response, HttpStatus.NOT_FOUND);
+            }
             actualClient.setName(client.getName());
             actualClient.setLastname(client.getLastname());
             actualClient.setEmail(client.getEmail());
-        }
 
-        try {
-            clientService.save(actualClient);
+            updatedClient = clientService.save(actualClient);
         } catch (DataAccessException e) {
-            response.put("message", "Error: no fue posible actualizar el cliente");
+            response.put("message", "Error: no es posible editar al cliente");
             response.put("error", e.getMessage().concat(": ").concat(e.getMostSpecificCause().getMessage()));
             return new ResponseEntity<Map<String, Object>>(response, HttpStatus.INTERNAL_SERVER_ERROR);
         }
 
-        response.put("client", actualClient);
+        response.put("client", updatedClient);
         response.put("message", "Cliente actualizado con éxito!");
         return new ResponseEntity<Map<String, Object>>(response, HttpStatus.CREATED);
     }
